@@ -69,3 +69,4 @@ MSER得到椭圆区域后，再结合SIFT，可以剔除掉很多没用的点，
 
 - Fisher Vector 256个单词，128降维到64，oxford buiding上mAP为42.70%。
 - Fisher Vector 512个单词，128降维到64，oxford buiding上mAP为52.27%；L2归一化中如果不采用max的方式，mAP为43.43%。
+- Fisher Vector 1024个单词，128降维到64，oxford buiding上mAP为x%；L2归一化中如果不采用max的方式，mAP为47.06%。
