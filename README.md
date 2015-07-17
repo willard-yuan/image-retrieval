@@ -65,10 +65,16 @@ MSER得到椭圆区域后，再结合SIFT，可以剔除掉很多没用的点，
 
 [SIFT on GPU (SiftGPU)](http://ccwu.me/), works for nVidia, ATI and Intel cards.
 
-### 待做实现
+### Fisher Vector
 
-- Fisher Vector 256个单词，128降维到64，oxford buiding上mAP为42.70%。
+| 单词数目 |     128 to 64    | 检索精度mAP |
+| ---------|:----------------:|:-----------:|
+|   256    |       是         |    42.70%   |
+|   512    |       是         |    52.27%   |
+|   1024   |       是         |    56.26%   |
+|   2048   |       是         |    58.68%   |
+|   4096   |       是         |    62.37%   |
+|   8192   |       是         |    65.43%   |
+
 - Fisher Vector 512个单词，128降维到64，oxford buiding上mAP为52.27%；L2归一化中如果不采用max的方式，mAP为43.43%。
 - Fisher Vector 1024个单词，128降维到64，oxford buiding上mAP为56.26%；L2归一化中如果不采用max的方式，mAP为47.06%。
-- Fisher Vector 2048个单词，128降维到64，oxford buiding上mAP为58.68%。
-- Fisher Vector 4096个单词，128降维到64，oxford buiding上mAP为62.37%。
