@@ -1,0 +1,7 @@
+#ifndef __CPP_SUGAR__
+#define __CPP_SUGAR__
+
+#include "func.hpp"
+#include "util.hpp"
+
+#endif

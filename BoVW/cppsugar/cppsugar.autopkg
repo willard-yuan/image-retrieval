@@ -1,0 +1,20 @@
+nuget{
+    nuspec{
+        id = cppsugar;
+        version: 0.0.3;
+        title: "C++ Syntax Sugar Library";
+        authors: {Yan Wang};
+        owners: {Yan Wang};
+        projectUrl: "https://github.com/grapeot/cppsugar";
+        requireLicenseAcceptance: false;
+        description: @"A syntax sugar library for C++, especially providing LINQ-like ease for functional programming.";
+        releaseNotes: "Refactor the code structure, add more functions, and add a test utility in github.";
+        copyright: Copyright 2014;
+        tags: { native, syntaxsugar, functional, linq };
+    };
+
+    files {
+        include: { "func.hpp", "util.hpp", "cppsugar" }; // this is a header only library
+        docs: { "README.md" };
+    };
+}
