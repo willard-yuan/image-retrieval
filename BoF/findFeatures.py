@@ -3,7 +3,6 @@
 
 import argparse as ap
 import cv2
-import imutils 
 import numpy as np
 import os
 from sklearn.externals import joblib

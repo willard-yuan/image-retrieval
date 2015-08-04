@@ -1,19 +1,14 @@
-# bag-of-words
+# bag of words for image retrieval written by Python
 ![alt text](docs/images/bog.png)
-Python Implementation of Bag of Words for Image Recognition using OpenCV and
-sklearn | [Video](https://www.youtube.com/watch?v=Ba_4wOpbJJM)
+Python Implementation of Bag of Words for Image Retrieval using OpenCV and
+sklearn | [Post](http://yongyuan.name/blog/practical-BoW-for-image-retrieval-with-python.html)
 
-## Training the classifier
+## Training the codebook and quantization
 ```
 python findFeatures.py -t dataset/train/
 ```
 
-## Testing the classifier
-* Testing a number of images
+* Query a single image
 ```
-python getClass.py -t dataset/test --visualize
-```
-* Testing a single image
-```
-python getClass.py -i dataset/test/aeroplane/test_1.jpg --visualize
+python search.py -i dataset/train/ukbench00000.jpg
 ```
