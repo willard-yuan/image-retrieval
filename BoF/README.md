@@ -1,5 +1,5 @@
-# bag of words for image retrieval written by Python
-![alt text](docs/images/bog.png)
+# bag of words for image retrieval
+
 Python Implementation of Bag of Words for Image Retrieval using OpenCV and
 sklearn | [Post](http://yongyuan.name/blog/practical-BoW-for-image-retrieval-with-python.html)
 
