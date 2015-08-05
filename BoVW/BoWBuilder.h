@@ -156,12 +156,13 @@ public:
         vector<int> centerIds(totalNum);  // Initialize defaultly centerIds with zeros
         for (int i = 0; i < totalNum; i++) centerIds[i] = i;  // Assignment value for centerIds
         random_shuffle(centerIds.begin(), centerIds.end());
-        set<int> centerIdSet;
+        set<int> centerIdSet;  // sorted defaultly by Ascending
         for (int i = 0; i < k; i++) centerIdSet.insert(centerIds[i]);  // use the first k randomly shuffle centerIds as the centers
         centerIds.clear();
         cerr << "done.\nConstruct data structure..." << endl;
         
-        // copy the selected features to centersMat
+        // copy the selected features to centersMat. 
+        // We don't stack all the SIFT features into a Matrix to avoid the Memory Overflow
         Mat centersMat(k, BoWBuilder::FEATURE_DIMENSION, DataType<float>::type);
         int currentIdx = 0, centersIdx = 0;
         for (auto it = features.begin(); it != features.end(); it++)
