@@ -28,6 +28,8 @@ int main(int argc, char **argv) {
     vector<Mat> features;
     BoWCollection bows;
     auto dict = bowb.BuildCodebookAndQuantize(imgfns, features, bows);
+    // after the above line, each feature in feature is a Mat: SIFT number*128
+    // each bow in bows is: k*1
     
     // store the codebook
     bowb.WriteCodebook(dict);
