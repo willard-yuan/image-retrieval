@@ -144,6 +144,7 @@ public:
         features = ExtractSIFTFeatures(imgfns);
         cerr << "Feature extraction complete." << endl;
         int totalNum = 0;
+        // sum the total number of SIFT points
         for (int i = 0; i < features.size(); i++) {
             totalNum += features[i].rows;
         }
