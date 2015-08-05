@@ -153,11 +153,11 @@ public:
         << " features per word in average." << endl;
         // first randomly generate the cluster centers
         cerr << "Initializing centers...";
-        vector<int> centerIds(totalNum);
-        for (int i = 0; i < totalNum; i++) centerIds[i] = i;
+        vector<int> centerIds(totalNum);  // Initialize defaultly centerIds with zeros
+        for (int i = 0; i < totalNum; i++) centerIds[i] = i;  // Assignment value for centerIds
         random_shuffle(centerIds.begin(), centerIds.end());
         set<int> centerIdSet;
-        for (int i = 0; i < k; i++) centerIdSet.insert(centerIds[i]);
+        for (int i = 0; i < k; i++) centerIdSet.insert(centerIds[i]);  // use the first k randomly shuffle centerIds as the centers
         centerIds.clear();
         cerr << "done.\nConstruct data structure..." << endl;
         
