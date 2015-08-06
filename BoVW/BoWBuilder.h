@@ -230,6 +230,10 @@ public:
         Index index(centersMat, KDTreeIndexParams());
         bows = BoWCollection();
         bows.bows.resize(features.size());
+
+        // used to store invert document frequence (idf)
+        vector<float> idf(DICT_SIZE);
+
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
@@ -250,6 +254,12 @@ public:
             float bowSum = Sum(bow);
             for (auto &b : bow) { b /= bowSum; }
             bows.bows[i] = BoW(i, bow);
+
+            // compute invert document frequence
+            for (int k = 0; k < bow.size(); k++){
+                if(bow[k] != 0) ++idf[k];
+            }
+
         }
         
         return centersMat;
