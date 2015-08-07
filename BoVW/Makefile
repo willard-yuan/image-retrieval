@@ -12,9 +12,9 @@ LIBPATH = -L/usr/local/lib
 
 all:    index search
 index:    index.cpp BoWBuilder.h
-	g++-5 $(CFLAGS) $(INCPATH) $(LIBPATH) -o index index.cpp $(LIBS)
+	g++ $(CFLAGS) $(INCPATH) $(LIBPATH) -o index index.cpp $(LIBS)
 search:    search.cpp BoWBuilder.h
-	g++-5 $(CFLAGS) $(INCPATH) $(LIBPATH) -o search search.cpp $(LIBS)
+	g++ $(CFLAGS) $(INCPATH) $(LIBPATH) -o search search.cpp $(LIBS)
 
 clean:
 	rm -f index search
