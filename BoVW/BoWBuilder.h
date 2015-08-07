@@ -260,7 +260,7 @@ public:
         }
 
         // compute invert document frequence
-        /*for (int k = 0; k < DICT_SIZE; k++) {
+        for (int k = 0; k < DICT_SIZE; k++) {
             idf[k] = log(features.size()/idf[k]);
         }
         
@@ -270,7 +270,7 @@ public:
             // l2-norm
             float accum = sqrt(std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bows.bows[i].bow.begin(), 0.0));
             for (auto &b : bows.bows[i].bow) { b /= accum; }
-        }*/
+        }
         
         return centersMat;
     }
@@ -300,7 +300,7 @@ public:
     }
     
     // extract features from the given image and the roi, and then return the quantization/pooling result.
-    vector<float> Quantize(const Mat &dict, string imgfn) const {
+    vector<float> Quantize(const Mat &dict, string imgfn, vector<float> idf) const {
         auto feature = ExtractSIFTFeature(imgfn);
         Index index(dict, KDTreeIndexParams());
         Mat nn(feature.rows, 1, DataType<int>::type);
@@ -311,8 +311,15 @@ public:
             bow[nn.at<int>(j, 0)]++;
         }
         // L1 normalization
-        float bowSum = Sum(bow);
-        for (auto &b : bow) { b /= bowSum; }
+        //float bowSum = Sum(bow);
+        //for (auto &b : bow) { b /= bowSum; }
+        
+        // bow: tf*idf
+        std::transform(bow.begin(), bow.end(), idf.begin(), bow.begin(), std::multiplies<float>());
+        // l2-norm
+        float accum = sqrt(std::inner_product(bow.begin(), bow.end(), bow.begin(), 0.0));
+        for (auto &b : bow) { b /= accum; }
+        
         return bow;
     }
 };
