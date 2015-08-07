@@ -2,3 +2,8 @@
 *.dat
 *.html
 .DS_Store
+
+# Executables
+*.exe
+*.out
+*.app
