@@ -248,8 +248,8 @@ public:
                 bow[(int)nn.at<int>(j, 0)]++;
             }
             // L1 normalization
-            float bowSum = Sum(bow);
-            for (auto &b : bow) { b /= bowSum; }
+            //float bowSum = Sum(bow);
+            //for (auto &b : bow) { b /= bowSum; }
             bows.bows[i] = BoW(i, bow);
 
             // compute invert document frequence

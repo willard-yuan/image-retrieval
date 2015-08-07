@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
     // comparison (HIK)
     vector<pair<int, float>> dists;
     for (int i = 0; i < bows.bows.size(); i++) {
-        float dist = Sum(Zip<float, float>(bows.bows[i].bow, bow, [](float f1, float f2) { return min(f1, f2); }));
+        float dist = std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bow.begin(), 0.0);
         dists.push_back(pair<int, float>(i, dist));
     }
     
