@@ -258,6 +258,19 @@ public:
             }
 
         }
+
+        // compute invert document frequence
+        /*for (int k = 0; k < DICT_SIZE; k++) {
+            idf[k] = log(features.size()/idf[k]);
+        }
+        
+        // bow: tf*idf
+        for(int i = 0; i < features.size(); i++) {
+            std::transform(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), idf.begin(), bows.bows[i].bow.begin(), std::multiplies<float>());
+            // l2-norm
+            float accum = sqrt(std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bows.bows[i].bow.begin(), 0.0));
+            for (auto &b : bows.bows[i].bow) { b /= accum; }
+        }*/
         
         return centersMat;
     }
