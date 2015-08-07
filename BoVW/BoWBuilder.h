@@ -135,7 +135,7 @@ public:
     
     // build a codebook from a file containing the file names of the images, sparse SIFT is used. k is the vocabulary size. The features are returned as features.
     // hard approximate quantization is also done using the intermediate result of KMeans
-    Mat BuildCodebookAndQuantize(const vector<string> &imgfns, vector<Mat> &features, BoWCollection &bows) const
+    Mat BuildCodebookAndQuantize(const vector<string> &imgfns, vector<Mat> &features, BoWCollection &bows, vector<float> &idf) const
     {
         auto c = clock();
         
@@ -230,9 +230,6 @@ public:
         Index index(centersMat, KDTreeIndexParams());
         bows = BoWCollection();
         bows.bows.resize(features.size());
-
-        // used to store invert document frequence (idf)
-        vector<float> idf(DICT_SIZE);
 
 #ifdef _OPENMP
 #pragma omp parallel for

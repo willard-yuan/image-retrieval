@@ -27,7 +27,8 @@ int main(int argc, char **argv) {
     BoWBuilder bowb;
     vector<Mat> features;
     BoWCollection bows;
-    auto dict = bowb.BuildCodebookAndQuantize(imgfns, features, bows);
+    vector<float> idf(bowb.DICT_SIZE);
+    auto dict = bowb.BuildCodebookAndQuantize(imgfns, features, bows, idf);
     // after the above line, each feature in feature is a Mat: SIFT number*128
     // each bow in bows is: k*1
     
