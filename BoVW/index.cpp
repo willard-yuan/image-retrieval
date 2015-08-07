@@ -34,6 +34,14 @@ int main(int argc, char **argv) {
     
     // store the codebook
     bowb.WriteCodebook(dict);
+
+    // store the idf
+    ofstream ofs_idf("idf.dat", ios::binary);
+    if (!ofs_idf) { throw runtime_error("Cannot open file."); }
+    size_t idfSize = idf.size();
+    ofs_idf.write((char *)&idfSize, sizeof(idfSize));
+    ofs_idf.write((char *)&idf[0], idf.size() * sizeof(float));
+    ofs_idf.close();
     
     // store the BoW
     ofstream ofs("bows.dat", ios::binary);

@@ -20,8 +20,18 @@ int main(int argc, char **argv) {
     BoWBuilder bowbuilder;
     // read in files
     auto dict = bowbuilder.ReadCodebook();
+
+    // open the idf
+    ifstream ifs_idf("idf.dat", ios::binary);
+    if (!ifs_idf) { throw runtime_error("Cannot open file."); }
+    size_t idfSize = 0;
+    ifs_idf.read((char *)&idfSize, sizeof(size_t));
+    vector<float> idf(idfSize);
+    ifs_idf.read((char *)&idf[0], sizeof(float) * idfSize);
+    ifs_idf.close();
+
     // extract features and quantize
-    auto bow = bowbuilder.Quantize(dict, argv[1]);
+    auto bow = bowbuilder.Quantize(dict, idf, argv[1]);
     // read the BoWs
     ifstream ifs("bows.dat", ios::binary);
     if (!ifs) { throw runtime_error("Cannot open file."); }

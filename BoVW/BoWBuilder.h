@@ -300,7 +300,7 @@ public:
     }
     
     // extract features from the given image and the roi, and then return the quantization/pooling result.
-    vector<float> Quantize(const Mat &dict, string imgfn, vector<float> idf) const {
+    vector<float> Quantize(const Mat &dict, vector<float> idf, string imgfn) const {
         auto feature = ExtractSIFTFeature(imgfn);
         Index index(dict, KDTreeIndexParams());
         Mat nn(feature.rows, 1, DataType<int>::type);
