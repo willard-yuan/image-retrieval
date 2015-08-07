@@ -86,7 +86,7 @@ class BoWBuilder
 {
 public:
     // some default settings
-    const int DICT_SIZE = 100000;    // vitual words
+    const int DICT_SIZE = 10000;    // virual words: 100,100 is much better
     const int FEATURE_DIMENSION = 128;    // for SIFT
     const int KMEANS_MAX_ITERATION = 75;
     
