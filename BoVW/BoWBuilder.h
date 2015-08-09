@@ -248,8 +248,8 @@ public:
                 bow[(int)nn.at<int>(j, 0)]++;
             }
             // L1 normalization
-            //float bowSum = Sum(bow);
-            //for (auto &b : bow) { b /= bowSum; }
+            float bowSum = Sum(bow);
+            for (auto &b : bow) { b /= bowSum; }
             bows.bows[i] = BoW(i, bow);
 
             // compute invert document frequence
@@ -261,7 +261,7 @@ public:
 
         // compute invert document frequence
         for (int k = 0; k < DICT_SIZE; k++) {
-            idf[k] = log(features.size()/idf[k]);
+            idf[k] = log(features.size()/(idf[k]+1));
         }
         
         // bow: tf*idf
@@ -311,8 +311,8 @@ public:
             bow[nn.at<int>(j, 0)]++;
         }
         // L1 normalization
-        //float bowSum = Sum(bow);
-        //for (auto &b : bow) { b /= bowSum; }
+        float bowSum = Sum(bow);
+        for (auto &b : bow) { b /= bowSum; }
         
         // bow: tf*idf
         std::transform(bow.begin(), bow.end(), idf.begin(), bow.begin(), std::multiplies<float>());

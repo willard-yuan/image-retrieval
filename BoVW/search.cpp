@@ -41,7 +41,8 @@ int main(int argc, char **argv) {
     // comparison (HIK)
     vector<pair<int, float>> dists;
     for (int i = 0; i < bows.bows.size(); i++) {
-        float dist = std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bow.begin(), 0.0);
+    	float dist = Sum(Zip<float, float>(bows.bows[i].bow, bow, [](float f1, float f2) { return min(f1, f2); }));
+        //float dist = std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bow.begin(), 0.0);
         dists.push_back(pair<int, float>(i, dist));
     }
     
@@ -53,13 +54,15 @@ int main(int argc, char **argv) {
         auto files = ReadAllLinesFromFile(argv[2]);
         ofstream ofs("result.html");
         if (!ofs) throw runtime_error("Cannot open file.");
-        ofs << "<html><head><style> img { max-width: 320px; }</style></head><body><h2>Query</h2><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
-        ofs << "<h2>Result</h2><table><tbody>";
+        ofs << "<html><head><style> img {width:250px; border:0px; margin:5px 5px; padding:0px 0px;} .divcss5{text-align:center} </style></head><body><div class=\"divcss5\"><h2>Query</h2><div><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
+        //ofs << "<html><head><style> img { max-width: 320px; }</style></head><body><h2>Query</h2><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
+        ofs << "<div class=\"divcss5\"><h2>Result</h2></div><table><tbody>";
         for (auto p : dists) {
-            ofs << "<tr><td><img alt=\"\" src=\"" << files[p.first] << "\" /></td><td><p>" << p.second << "</p></td></tr>";
+            ofs << "<img alt=\"\" src=\"" << files[p.first] << "\" />";
+            //ofs << "<tr><td><img alt=\"\" src=\"" << files[p.first] << "\" /></td><td><p>" << p.second << "</p></td></tr>";
             
         }
-        ofs << "</tbody><table></body></html>";
+        ofs << "</tbody></table></body></html>";
         ofs.close();
         cerr << "Html outputted." << endl;
     }
