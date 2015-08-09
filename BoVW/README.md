@@ -26,7 +26,7 @@ this will return two files `bows.dat` and `dict.dat`.
 ./search /Users/willard/Pictures/first1000/ukbench00499.jpg imageNamesList.txt
 ```
 
-**Note**: `ukbench00499.jpg`, `ukbench00399.jpg`, `kbench00729.jpg`, `ukbench00225.jpg`, `ukbench00325.jpg` are good tests for query.
+**Note**: `ukbench00954.jpg`, `ukbench00499.jpg`, `ukbench00399.jpg`, `kbench00729.jpg`, `ukbench00225.jpg`, `ukbench00325.jpg` are good tests for query.
 
 it's will return a html file. Open the file with a browser, and you will see the search result.
 
