@@ -33,5 +33,6 @@ it's will return a html file. Open the file with a browser, and you will see the
 ## To do
 
 1. Add invert document frequence. (done)
+2. Compute **Ukbench** NS score. (nogoing)
 2. Replace SIFT with RootSIFT.
 3. Add re-ranking.
