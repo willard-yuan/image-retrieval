@@ -32,7 +32,8 @@ it's will return a html file. Open the file with a browser, and you will see the
 
 4.Experiments
 
-**Ukbench** first 1000 images, the NS-scores: 3.358.
+**Ukbench** first 1000 images, the NS-scores: 3.358, with tf*idf and histogram intersection kernel distance.
+**Ukbench** first 1000 images, the NS-scores: 3.602, with tf and histogram intersection kernel distance.
 
 
 ## To do
