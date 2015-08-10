@@ -30,6 +30,9 @@ this will return two files `bows.dat` and `dict.dat`.
 
 it's will return a html file. Open the file with a browser, and you will see the search result.
 
+4. Experiments
+ukbench first 1000 images, the NS-scores: 3.358.
+
 ## To do
 
 1. Add invert document frequence. (done)
