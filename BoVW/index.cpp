@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
         readme();
         return -1;
     }
-    
+
     auto imgfns = ReadAllLinesFromFile(argv[1]);
     BoWBuilder bowb;
     vector<Mat> features;
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     auto dict = bowb.BuildCodebookAndQuantize(imgfns, features, bows, idf);
     // after the above line, each feature in feature is a Mat: SIFT number*128
     // each bow in bows is: k*1
-    
+
     // store the codebook
     bowb.WriteCodebook(dict);
 
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     ofs_idf.write((char *)&idfSize, sizeof(idfSize));
     ofs_idf.write((char *)&idf[0], idf.size() * sizeof(float));
     ofs_idf.close();
-    
+
     // store the BoW
     ofstream ofs("bows.dat", ios::binary);
     if (!ofs) { throw runtime_error("Cannot open file."); }

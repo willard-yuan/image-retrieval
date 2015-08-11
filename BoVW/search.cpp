@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
         return -1;
     }
     bool isHTML = (argc == 3);
-    
+
     BoWBuilder bowbuilder;
     // read in files
     auto dict = bowbuilder.ReadCodebook();
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     if (!ifs) { throw runtime_error("Cannot open file."); }
     BoWCollection bows = BoWCollection::Deserialize(ifs);
     ifs.close();
-    
+
     // comparison (HIK)
     vector<pair<int, float>> dists;
     for (int i = 0; i < bows.bows.size(); i++) {
@@ -45,11 +45,11 @@ int main(int argc, char **argv) {
         //float dist = std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bow.begin(), 0.0);
         dists.push_back(pair<int, float>(i, dist));
     }
-    
+
     // sort and output
     sort(dists, [](const pair<int, float> &p1, const pair<int, float> &p2) { return p1.second > p2.second; });    // descending
     for (auto p : dists) { cout << p.first << endl; }
-    
+
     if (isHTML) {
         auto files = ReadAllLinesFromFile(argv[2]);
         ofstream ofs("result.html");
@@ -60,12 +60,12 @@ int main(int argc, char **argv) {
         for (auto p : dists) {
             ofs << "<img alt=\"\" src=\"" << files[p.first] << "\" />";
             //ofs << "<tr><td><img alt=\"\" src=\"" << files[p.first] << "\" /></td><td><p>" << p.second << "</p></td></tr>";
-            
+
         }
         ofs << "</tbody></table></body></html>";
         ofs.close();
         cerr << "Html outputted." << endl;
     }
-    
+
     return 0;
 }

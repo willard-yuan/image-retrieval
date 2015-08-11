@@ -37,14 +37,14 @@ struct BoW
     vector<float> bow;
     BoW(): id(-1) {};
     BoW(int _id, const std::vector<float> &_bow): id(_id), bow(_bow) {};
-    
+
     void Serialize(ofstream &ofs) const {
         ofs.write((char *)&id, sizeof(int));
         int size = bow.size();
         ofs.write((char *)&size, sizeof(int));
         ofs.write((char *)&bow[0], sizeof(float) * size);
     }
-    
+
     static BoW Deserialize(ifstream &ifs) {
         BoW bow;
         ifs.read((char *)&bow.id, sizeof(int));
@@ -61,7 +61,7 @@ struct BoWCollection
     vector<BoW> bows;
     BoWCollection() {}
     BoWCollection(int _size): bows(_size) {}
-    
+
     void Serialize(ofstream &ofs) const {
         int size = bows.size();
         ofs.write((char *)&size, sizeof(int));
@@ -69,7 +69,7 @@ struct BoWCollection
             bow.Serialize(ofs);
         }
     }
-    
+
     static BoWCollection Deserialize(ifstream &ifs) {
         BoWCollection bows;
         int size = 0;
@@ -89,12 +89,12 @@ public:
     const int DICT_SIZE = 10000;    // virual words: 100,100 is much better
     const int FEATURE_DIMENSION = 128;    // for SIFT
     const int KMEANS_MAX_ITERATION = 75;
-    
+
     CompositeIndexParams QuantizationIndex;
-    
+
     BoWBuilder(void) {};
     ~BoWBuilder(void) {};
-    
+
     Mat ExtractSIFTFeature(const string &imgfn) const {
         auto img = imread(imgfn, true);    //imgfn: image file name
         vector<KeyPoint> keypoints;
@@ -120,7 +120,7 @@ public:
         cerr << descriptors.rows << " feature extracted." << endl;
         return descriptors;
     }
-    
+
     // Extract sparse SIFT feature from the given images, the returned value is a vector of feature. Each vector contains the descriptors of each image.
     vector<Mat> ExtractSIFTFeatures(const vector<string> &imgfns) const {
         vector<Mat> features(imgfns.size());
@@ -132,13 +132,13 @@ public:
         }
         return features;
     }
-    
+
     // build a codebook from a file containing the file names of the images, sparse SIFT is used. k is the vocabulary size. The features are returned as features.
     // hard approximate quantization is also done using the intermediate result of KMeans
     Mat BuildCodebookAndQuantize(const vector<string> &imgfns, vector<Mat> &features, BoWCollection &bows, vector<float> &idf) const
     {
         auto c = clock();
-        
+
         int k = BoWBuilder::DICT_SIZE;
         // for our current scale, don't need to subsample the features
         features = ExtractSIFTFeatures(imgfns);
@@ -160,8 +160,8 @@ public:
         for (int i = 0; i < k; i++) centerIdSet.insert(centerIds[i]);  // use the first k randomly shuffle centerIds as the centers
         centerIds.clear();
         cerr << "done.\nConstruct data structure..." << endl;
-        
-        // copy the selected features to centersMat. 
+
+        // copy the selected features to centersMat.
         // We don't stack all the SIFT features into a Matrix to avoid the Memory Overflow
         Mat centersMat(k, BoWBuilder::FEATURE_DIMENSION, DataType<float>::type);
         int currentIdx = 0, centersIdx = 0;
@@ -177,7 +177,7 @@ public:
                 currentIdx++;
             }
         }
-        
+
         // actual iteration
         cerr << "Actual iteration...";
         vector<int> labels(totalNum);
@@ -191,7 +191,7 @@ public:
                 idx.push_back(pair<int, int>(i, j));
             }
         }
-        
+
         for (int iter = 0; iter < KMEANS_MAX_ITERATION; iter++)
         {
             // build index
@@ -224,7 +224,7 @@ public:
 #else
         cerr << "done. " << (clock() - c) / 1000 << "sec." << endl;
 #endif
-        
+
         // do a last round for quantization
         cerr << "Quantization... " << endl;
         Index index(centersMat, KDTreeIndexParams());
@@ -261,20 +261,20 @@ public:
 
         // compute invert document frequence
         for (int k = 0; k < DICT_SIZE; k++) {
-            idf[k] = log(features.size()/(idf[k]+1));
+            idf[k] = log(features.size()/idf[k]);
         }
-        
+
         // bow: tf*idf
         for(int i = 0; i < features.size(); i++) {
             std::transform(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), idf.begin(), bows.bows[i].bow.begin(), std::multiplies<float>());
-            // l2-norm
-            float accum = sqrt(std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bows.bows[i].bow.begin(), 0.0));
-            for (auto &b : bows.bows[i].bow) { b /= accum; }
+            // L2 normalization
+            //float accum = sqrt(std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bows.bows[i].bow.begin(), 0.0));
+            //for (auto &b : bows.bows[i].bow) { b /= accum; }
         }
-        
+
         return centersMat;
     }
-    
+
     Mat ReadCodebook() const {
         vector<float> buff;
         ifstream ifs("dict.dat", ios::binary);
@@ -285,11 +285,11 @@ public:
         buff.resize(w * h);
         ifs.read((char *)&buff[0], sizeof(float) * buff.size());
         ifs.close();
-        
+
         // row major
         return Mat(buff, true).reshape(1, h);
     }
-    
+
     void WriteCodebook(const Mat &dict) const {
         ofstream ofs("dict.dat", ios::binary);
         if (!ofs) { throw runtime_error("Cannot open file."); }
@@ -298,7 +298,7 @@ public:
         ofs.write((char *)dict.data, dict.dataend - dict.data);
         ofs.close();
     }
-    
+
     // extract features from the given image and the roi, and then return the quantization/pooling result.
     vector<float> Quantize(const Mat &dict, vector<float> idf, string imgfn) const {
         auto feature = ExtractSIFTFeature(imgfn);
@@ -313,13 +313,13 @@ public:
         // L1 normalization
         float bowSum = Sum(bow);
         for (auto &b : bow) { b /= bowSum; }
-        
+
         // bow: tf*idf
         std::transform(bow.begin(), bow.end(), idf.begin(), bow.begin(), std::multiplies<float>());
-        // l2-norm
-        float accum = sqrt(std::inner_product(bow.begin(), bow.end(), bow.begin(), 0.0));
-        for (auto &b : bow) { b /= accum; }
-        
+        // L2 normalization
+        //float accum = sqrt(std::inner_product(bow.begin(), bow.end(), bow.begin(), 0.0));
+        //for (auto &b : bow) { b /= accum; }
+
         return bow;
     }
 };

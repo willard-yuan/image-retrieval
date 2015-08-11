@@ -10,11 +10,13 @@ LIBS =  -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_h
 INCPATH = -I/usr/local/include -I/Users/willard/codes/cpp/opencv-computer-vision/cpp/BoVW/cppsugar
 LIBPATH = -L/usr/local/lib
 
-all:    index search
+all:    index search ukbenchScores
 index:    index.cpp BoWBuilder.h
 	g++ $(CFLAGS) $(INCPATH) $(LIBPATH) -o index index.cpp $(LIBS)
 search:    search.cpp BoWBuilder.h
 	g++ $(CFLAGS) $(INCPATH) $(LIBPATH) -o search search.cpp $(LIBS)
+ukbenchScores:    ukbenchScores.cpp BoWBuilder.h
+	g++ $(CFLAGS) $(INCPATH) $(LIBPATH) -o ukbenchScores ukbenchScores.cpp $(LIBS)
 
 clean:
-	rm -f index search
+	rm -f index search ukbenchScores
