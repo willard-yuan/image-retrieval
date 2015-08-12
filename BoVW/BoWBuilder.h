@@ -256,8 +256,6 @@ public:
         wordsTest = BoWCollection();
         wordsTest.bows.resize(features.size());
 
-        //vector<vector<int> > words((int)features.size());
-
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif

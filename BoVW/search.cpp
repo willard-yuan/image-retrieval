@@ -83,7 +83,6 @@ int main(int argc, char **argv) {
     // get the match key points
     vector<vector<pair<int, int>>> idx(words.bows.size());
     for(int i = 0; i < reRankingDepth; i++)
-    //for(int i = 0; i < words.bows.size(); i++)
     {
         for (int j = 0; j < bow.size(); j++) {
             int index = dists[i].first;
@@ -139,11 +138,9 @@ int main(int argc, char **argv) {
         ofstream ofs("result.html");
         if (!ofs) throw runtime_error("Cannot open file.");
         ofs << "<html><head><style> img {width:250px; border:0px; margin:5px 5px; padding:0px 0px;} .divcss5{text-align:center} </style></head><body><div class=\"divcss5\"><h2>Query</h2><div><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
-        //ofs << "<html><head><style> img { max-width: 320px; }</style></head><body><h2>Query</h2><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
         ofs << "<div class=\"divcss5\"><h2>Result</h2></div><table><tbody>";
         for (auto p : dists) {
             ofs << "<img alt=\"\" src=\"" << files[p.first] << "\" />";
-            //ofs << "<tr><td><img alt=\"\" src=\"" << files[p.first] << "\" /></td><td><p>" << p.second << "</p></td></tr>";
 
         }
         ofs << "</tbody></table></body></html>";
