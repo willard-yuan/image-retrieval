@@ -14,6 +14,9 @@
 #include <string>
 #include <set>
 #include <utility>
+#include <math.h>
+#include <algorithm>
+#include <functional>
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d/features2d.hpp"
@@ -35,12 +38,18 @@ struct BoW
 {
     int id;
     vector<float> bow;
+
+    // save keypoints
+    //vector<KeyPoint> keypoints;
+
     BoW(): id(-1) {};
     BoW(int _id, const std::vector<float> &_bow): id(_id), bow(_bow) {};
+    //BoW(int _id, const std::vector<float> &_bow, const std::vector<KeyPoint> &_keypoints): id(_id), bow(_bow), keypoints(_keypoints) {};
 
     void Serialize(ofstream &ofs) const {
         ofs.write((char *)&id, sizeof(int));
-        int size = bow.size();
+        //int size = bow.size();
+        auto size = bow.size();
         ofs.write((char *)&size, sizeof(int));
         ofs.write((char *)&bow[0], sizeof(float) * size);
     }
@@ -63,7 +72,8 @@ struct BoWCollection
     BoWCollection(int _size): bows(_size) {}
 
     void Serialize(ofstream &ofs) const {
-        int size = bows.size();
+        auto size = bows.size();
+        //int size = bows.size();
         ofs.write((char *)&size, sizeof(int));
         for (const auto &bow : bows) {
             bow.Serialize(ofs);
@@ -86,7 +96,8 @@ class BoWBuilder
 {
 public:
     // some default settings
-    const int DICT_SIZE = 10000;    // virual words: 100,100 is much better
+    //const int DICT_SIZE = 100000;    // virual words
+    const int DICT_SIZE = 1000;    // virual words
     const int FEATURE_DIMENSION = 128;    // for SIFT
     const int KMEANS_MAX_ITERATION = 75;
 
@@ -95,7 +106,7 @@ public:
     BoWBuilder(void) {};
     ~BoWBuilder(void) {};
 
-    Mat ExtractSIFTFeature(const string &imgfn) const {
+    Mat ExtractSIFTFeature(const string &imgfn, vector<Point2f> &keypointsCoordinate) const {
         auto img = imread(imgfn, true);    //imgfn: image file name
         vector<KeyPoint> keypoints;
         SiftFeatureDetector detector;
@@ -105,7 +116,17 @@ public:
         if (!keypoints.size()) {
             return Mat();
         }
+
+        // extract sift feature
         extractor.compute(img, keypoints, descriptors);
+
+        keypointsCoordinate.resize(keypoints.size());
+        for (int i = 0; i < keypoints.size(); i++){
+            // aligin keypoint coordinate to keypointsCoordinate
+            keypointsCoordinate[i].x = keypoints[i].pt.x;
+            keypointsCoordinate[i].y = keypoints[i].pt.y;
+        }
+
         // descriptors are not normalized, do L2 normalization here.
         for (int y = 0; y < descriptors.rows; y++) {
             // first get the square sum
@@ -121,31 +142,33 @@ public:
         return descriptors;
     }
 
-    // Extract sparse SIFT feature from the given images, the returned value is a vector of feature. Each vector contains the descriptors of each image.
-    vector<Mat> ExtractSIFTFeatures(const vector<string> &imgfns) const {
+    // Extract sparse SIFT feature from the given images, the returned value is a vector of feature.
+    // Each vector contains the descriptors of each image.
+    vector<Mat> ExtractSIFTFeatures(const vector<string> &imgfns, vector<vector<Point2f>> &coordinateAllRows) const {
         vector<Mat> features(imgfns.size());
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
         for (int i = 0; i < imgfns.size(); i++) {
-            features[i] = ExtractSIFTFeature(imgfns[i]);
+            coordinateAllRows[i].resize(100);
+            features[i] = ExtractSIFTFeature(imgfns[i], coordinateAllRows[i]);
         }
         return features;
     }
 
-    // build a codebook from a file containing the file names of the images, sparse SIFT is used. k is the vocabulary size. The features are returned as features.
+    // build a codebook from a file containing the file names of the images, sparse SIFT is used.
+    // k is the vocabulary size. The features are returned as features.
     // hard approximate quantization is also done using the intermediate result of KMeans
-    Mat BuildCodebookAndQuantize(const vector<string> &imgfns, vector<Mat> &features, BoWCollection &bows, vector<float> &idf) const
+    Mat BuildCodebookAndQuantize(const vector<string> &imgfns, vector<Mat> &features, BoWCollection &bows, vector<float> &idf, vector<vector<int> > &words, BoWCollection &wordsTest, vector<vector<Point2f>> &coordinateAllRows) const
     {
         auto c = clock();
 
         int k = BoWBuilder::DICT_SIZE;
         // for our current scale, don't need to subsample the features
-        features = ExtractSIFTFeatures(imgfns);
+        features = ExtractSIFTFeatures(imgfns, coordinateAllRows);
         cerr << "Feature extraction complete." << endl;
         int totalNum = 0;
-        // sum the total number of SIFT points
-        for (int i = 0; i < features.size(); i++) {
+        for (int i = 0; i < features.size(); i++) {  //
             totalNum += features[i].rows;
         }
         // int totalNum = Sum<Mat, int>(features, [](const Mat &v) { return v.rows; });
@@ -153,7 +176,7 @@ public:
         << " features per word in average." << endl;
         // first randomly generate the cluster centers
         cerr << "Initializing centers...";
-        vector<int> centerIds(totalNum);  // Initialize defaultly centerIds with zeros
+        vector<int> centerIds(totalNum);  // Initialize centerIds with zeros
         for (int i = 0; i < totalNum; i++) centerIds[i] = i;  // Assignment value for centerIds
         random_shuffle(centerIds.begin(), centerIds.end());
         set<int> centerIdSet;  // sorted defaultly by Ascending
@@ -161,9 +184,8 @@ public:
         centerIds.clear();
         cerr << "done.\nConstruct data structure..." << endl;
 
-        // copy the selected features to centersMat.
-        // We don't stack all the SIFT features into a Matrix to avoid the Memory Overflow
-        Mat centersMat(k, BoWBuilder::FEATURE_DIMENSION, DataType<float>::type);
+        // copy the selected features to centersMat. We don't stack all the SIFT features into a Matrix to avoid the Memory Overflow
+        Mat centersMat(k, BoWBuilder::FEATURE_DIMENSION, DataType<float>::type);  // Initialize a Matrix(Mat) to hold the centers
         int currentIdx = 0, centersIdx = 0;
         for (auto it = features.begin(); it != features.end(); it++)
         {
@@ -184,7 +206,7 @@ public:
         Mat centersSum(k, FEATURE_DIMENSION, DataType<float>::type);
         // for more effient parallelization, use a two-stage indexing system
         vector<pair<int, int>> idx;
-        idx.reserve(totalNum);
+        idx.reserve(totalNum);  // reserve(Container::size_type n)强制容器把它的容量改为至少n，提供的n不小于当前大小。
         for(int i = 0; i < features.size(); i++)
         {
             for (int j = 0; j < features[i].rows; j++) {
@@ -231,6 +253,11 @@ public:
         bows = BoWCollection();
         bows.bows.resize(features.size());
 
+        wordsTest = BoWCollection();
+        wordsTest.bows.resize(features.size());
+
+        //vector<vector<int> > words((int)features.size());
+
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
@@ -244,6 +271,15 @@ public:
             Mat dist(features[i].rows, 1, DataType<float>::type);
             index.knnSearch(features[i], nn, dist, 1, SearchParams());
             vector<float> bow(k);
+
+            // recode words
+            for (int k = 0; k < (int)nn.rows; k++){
+                words[i].push_back(nn.at<int>(k, 0));
+                //cout << nn.at<int>(k, 0) << endl;
+            }
+
+            wordsTest.bows[i] = BoW(i, nn);
+
             for (int j = 0; j < features[i].rows; j++) {
                 bow[(int)nn.at<int>(j, 0)]++;
             }
@@ -253,10 +289,9 @@ public:
             bows.bows[i] = BoW(i, bow);
 
             // compute invert document frequence
-            for (int k = 0; k < bow.size(); k++){
+            for (int k = 0; k < bow.size(); k++) {
                 if(bow[k] != 0) ++idf[k];
             }
-
         }
 
         // compute invert document frequence
@@ -267,7 +302,7 @@ public:
         // bow: tf*idf
         for(int i = 0; i < features.size(); i++) {
             std::transform(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), idf.begin(), bows.bows[i].bow.begin(), std::multiplies<float>());
-            // L2 normalization
+            // l2-norm
             //float accum = sqrt(std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bows.bows[i].bow.begin(), 0.0));
             //for (auto &b : bows.bows[i].bow) { b /= accum; }
         }
@@ -300,15 +335,21 @@ public:
     }
 
     // extract features from the given image and the roi, and then return the quantization/pooling result.
-    vector<float> Quantize(const Mat &dict, vector<float> idf, string imgfn) const {
-        auto feature = ExtractSIFTFeature(imgfn);
+    vector<float> Quantize(const Mat &dict, vector<float> idf, string imgfn, vector<int> &word, vector<Point2f> &quryCood) const {
+        auto feature = ExtractSIFTFeature(imgfn, quryCood);
         Index index(dict, KDTreeIndexParams());
         Mat nn(feature.rows, 1, DataType<int>::type);
         Mat dist(feature.rows, 1, DataType<float>::type);
         index.knnSearch(feature, nn, dist, 1, SearchParams());
+
         vector<float> bow(dict.rows);
         for (int j = 0; j < feature.rows; j++) {
             bow[nn.at<int>(j, 0)]++;
+            // word of query
+        }
+
+        for (int k = 0; k < (int)nn.rows; k++){
+            word.push_back(nn.at<int>(k, 0));
         }
         // L1 normalization
         float bowSum = Sum(bow);
@@ -316,7 +357,7 @@ public:
 
         // bow: tf*idf
         std::transform(bow.begin(), bow.end(), idf.begin(), bow.begin(), std::multiplies<float>());
-        // L2 normalization
+        // l2-norm
         //float accum = sqrt(std::inner_product(bow.begin(), bow.end(), bow.begin(), 0.0));
         //for (auto &b : bow) { b /= accum; }
 

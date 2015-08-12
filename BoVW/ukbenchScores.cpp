@@ -31,6 +31,32 @@ int main(int argc, char **argv) {
     ifs_idf.read((char *)&idf[0], sizeof(float) * idfSize);
     ifs_idf.close();
 
+    // open the coordinate of sift feature
+    ifstream ifs_pointCoords("pointCoords.dat", ios::binary);
+    if (!ifs_pointCoords) { throw runtime_error("Cannot open file."); }
+    int coordinateAllRowsSize = 0;
+    ifs_pointCoords.read((char *)&coordinateAllRowsSize, sizeof(int));
+    vector<vector<Point2f>> coordinateAllRows(coordinateAllRowsSize);
+    for (int i = 0; i < coordinateAllRowsSize; i++) {
+        int coodRowSize = 0;
+        ifs_pointCoords.read((char *)&coodRowSize, sizeof(int));
+        vector<Point2f> coodRow;
+        coodRow.resize(coodRowSize);
+        coordinateAllRows[i].resize(coodRowSize);
+        ifs_pointCoords.read((char *)&coodRow[0], sizeof(Point2f) * coodRowSize);
+        for (int j = 0; j < coodRowSize; j++){
+            coordinateAllRows[i][j].x = coodRow[j].x;
+            coordinateAllRows[i][j].y = coodRow[j].y;
+        }
+    }
+    ifs_pointCoords.close();
+
+    // open the words
+    ifstream ifs_words("words.dat", ios::binary);
+    if (!ifs_words) { throw runtime_error("Cannot open file."); }
+    BoWCollection words = BoWCollection::Deserialize(ifs_words);
+    ifs_words.close();
+
     auto imgfns = ReadAllLinesFromFile(argv[1]);
 
     // read the BoWs
@@ -41,19 +67,80 @@ int main(int argc, char **argv) {
 
     float scores = 0;
 
-    for (int i = 0; i < 1000; i++){
-    //for (int i = 0; i < imgfns.size(); i++){
+    //for (int i = 0; i < 1000; i++){
+    for (int i = 0; i < imgfns.size(); i++){
         float eachScore = 0;
 
         // extract features and quantize
-        auto bow = bowbuilder.Quantize(dict, idf, imgfns[i]);
+        vector<int> word;
+        vector<Point2f> queryCood (100);
+        auto bow = bowbuilder.Quantize(dict, idf, argv[1], word, queryCood);
 
         // comparison (HIK)
         vector<pair<int, float>> dists;
         for (int i = 0; i < bows.bows.size(); i++) {
             float dist = Sum(Zip<float, float>(bows.bows[i].bow, bow, [](float f1, float f2) { return min(f1, f2); }));
-            //float dist = std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bow.begin(), 0.0);
             dists.push_back(pair<int, float>(i, dist));
+        }
+
+        // sort and output
+        sort(dists, [](const pair<int, float> &p1, const pair<int, float> &p2) { return p1.second > p2.second; });    // descending
+        for (auto p : dists) { cout << p.first << endl; }
+
+        int reRankingDepth = 8;
+
+        // get the match key points
+        vector<vector<pair<int, int>>> idx(words.bows.size());
+        for(int i = 0; i < reRankingDepth; i++)
+        //for(int i = 0; i < words.bows.size(); i++)
+        {
+            for (int j = 0; j < bow.size(); j++) {
+                int index = dists[i].first;
+                for (int k = 0; k < words.bows[index].bow.size(); k++){
+                    if (word[j] == (int)(words.bows[index].bow)[k]){
+                        idx[i].push_back(pair<int, int>(j, k));
+                        cout << j << " , " << k << endl;
+                    }
+                }
+            }
+        }
+
+        vector<pair<int, float>> reRankScores;
+
+
+        for (int i = 0; i < reRankingDepth; i++){
+            // Localize the object
+            vector<Point2f> query;
+            vector<Point2f> scene;
+            for( int j = 0; j < idx[i].size(); j++){
+                // Get the keypoints from the good matches
+                cout << idx[i][j].first << " _,_ " << idx[i][j].second << endl;
+                query.push_back(queryCood[idx[i][j].first]);
+                scene.push_back(queryCood[idx[i][j].second]);
+            }
+
+            // compute homography using RANSAC
+            Mat mask;
+            Mat H = findHomography( query, scene, CV_RANSAC, 3, mask);
+            int inliers_cnt = 0, outliers_cnt = 0;
+            for (int j = 0; j < mask.rows; j++){
+                if (mask.at<uchar>(j) == 1){
+                    inliers_cnt++;
+                }else {
+                    outliers_cnt++;
+                }
+            }
+            int index = dists[i].first;
+            float score = (float)inliers_cnt/idx[i].size();
+            reRankScores.push_back(pair<int, float>(index, score));
+        }
+
+        // sort and output
+        sort(reRankScores, [](const pair<int, float> &p1, const pair<int, float> &p2) { return p1.second > p2.second; });    // descending
+
+        // re-ranking result
+        for (int i = 0; i < reRankingDepth; i++){
+            dists[i] = reRankScores[i];
         }
 
         // sort and output

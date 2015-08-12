@@ -28,9 +28,10 @@ int main(int argc, char **argv) {
     vector<Mat> features;
     BoWCollection bows;
     vector<float> idf(bowb.DICT_SIZE);
-    auto dict = bowb.BuildCodebookAndQuantize(imgfns, features, bows, idf);
-    // after the above line, each feature in feature is a Mat: SIFT number*128
-    // each bow in bows is: k*1
+    vector<vector<int> > words(imgfns.size());
+    BoWCollection wordsTest;
+    vector<vector<Point2f>> coordinateAllRows(imgfns.size());
+    auto dict = bowb.BuildCodebookAndQuantize(imgfns, features, bows, idf, words, wordsTest, coordinateAllRows);
 
     // store the codebook
     bowb.WriteCodebook(dict);
@@ -42,6 +43,24 @@ int main(int argc, char **argv) {
     ofs_idf.write((char *)&idfSize, sizeof(idfSize));
     ofs_idf.write((char *)&idf[0], idf.size() * sizeof(float));
     ofs_idf.close();
+
+    // store the words
+    ofstream ofs_words("words.dat", ios::binary);
+    if (!ofs_words) { throw runtime_error("Cannot open file."); }
+    wordsTest.Serialize(ofs_words);
+    ofs_words.close();
+
+    // store the coordinate of sift feature
+    ofstream ofs_pointCoords("pointCoords.dat", ios::binary);
+    if (!ofs_pointCoords) { throw runtime_error("Cannot open file."); }
+    auto coordinateAllRowsSize = coordinateAllRows.size();
+    ofs_pointCoords.write((char *)&coordinateAllRowsSize, sizeof(int));
+    for (const auto &coodRow : coordinateAllRows) {
+        auto coodRowSize = coodRow.size();
+        ofs_pointCoords.write((char *)&coodRowSize, sizeof(int));
+        ofs_pointCoords.write((char *)&coodRow[0], sizeof(Point2f) * coodRowSize);
+    }
+    ofs_pointCoords.close();
 
     // store the BoW
     ofstream ofs("bows.dat", ios::binary);
