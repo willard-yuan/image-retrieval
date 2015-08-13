@@ -1,8 +1,31 @@
-## Bag of Words (Cpp version)
+## Bag of Words稳定版
 
-Most of the code comes from [BoW](https://github.com/grapeot/BoW). I'm improving it now.
+**致谢**：基础框架来源[BoW](https://github.com/grapeot/BoW)，开发版本在此基础上进行，已在Ubuntu、OS X上测试通过，Windows需要支持c++11的编译器(VS2012及其以上)。
 
-## Usage
+## 使用
+
+1. 编译
+
+修改`Makefile`文件，如果你的系统支持多线程技术，将
+```sh
+CFLAGS = -std=c++11
+```
+修改为
+```sh
+CFLAGS = -std=c++11 -fopenMP # if openMP accesses, using this
+```
+修改完上面后，再修改编译所需的OpenCV和cppsugar，即
+```sh
+INCPATH = -I/usr/local/include -I/Users/willard/codes/cpp/opencv-computer-vision/cpp/BoVW/cppsugar
+LIBPATH = -L/usr/local/lib
+```
+`/usr/local/include`和`/usr/local/lib`分别是OpenCV所在的包含头文件目录路径和库目录路径，修改为你本机所在的目录即可。后面的cppsugar目录同样换成你本机的目录。
+修改。这些修改完成后，执行下面命令进行编译：
+
+```sh
+make
+```
+编译后即可在所在目录生成可执行文件。
 
 1.Generate the images list:
 
