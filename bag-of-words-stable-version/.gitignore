@@ -1,0 +1,9 @@
+# dat
+*.dat
+*.html
+.DS_Store
+
+# Executables
+index
+search
+ukbenchScores
