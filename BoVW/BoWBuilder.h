@@ -97,7 +97,7 @@ class BoWBuilder
 public:
     // some default settings
     //const int DICT_SIZE = 100000;    // virual words
-    const int DICT_SIZE = 1000;    // virual words
+    const int DICT_SIZE = 10000;    // virual words
     const int FEATURE_DIMENSION = 128;    // for SIFT
     const int KMEANS_MAX_ITERATION = 75;
 
@@ -298,12 +298,12 @@ public:
         }
 
         // bow: tf*idf
-        for(int i = 0; i < features.size(); i++) {
+        /*for(int i = 0; i < features.size(); i++) {
             std::transform(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), idf.begin(), bows.bows[i].bow.begin(), std::multiplies<float>());
             // l2-norm
             //float accum = sqrt(std::inner_product(bows.bows[i].bow.begin(), bows.bows[i].bow.end(), bows.bows[i].bow.begin(), 0.0));
             //for (auto &b : bows.bows[i].bow) { b /= accum; }
-        }
+        }*/
 
         return centersMat;
     }
@@ -354,7 +354,7 @@ public:
         for (auto &b : bow) { b /= bowSum; }
 
         // bow: tf*idf
-        std::transform(bow.begin(), bow.end(), idf.begin(), bow.begin(), std::multiplies<float>());
+        //std::transform(bow.begin(), bow.end(), idf.begin(), bow.begin(), std::multiplies<float>());
         // l2-norm
         //float accum = sqrt(std::inner_product(bow.begin(), bow.end(), bow.begin(), 0.0));
         //for (auto &b : bow) { b /= accum; }
