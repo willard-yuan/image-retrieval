@@ -110,7 +110,8 @@ int main(int argc, char **argv) {
                 // Get the keypoints from the good matches
                 cout << idx[i][j].first << " _,_ " << idx[i][j].second << endl;
                 query.push_back(queryCood[idx[i][j].first]);
-                scene.push_back(queryCood[idx[i][j].second]);
+                //scene.push_back(queryCood[idx[i][j].second]); error
+                scene.push_back(coordinateAllRows[dists[i].first][idx[i][j].second]);
             }
             // compute homography using RANSAC
             Mat mask;
