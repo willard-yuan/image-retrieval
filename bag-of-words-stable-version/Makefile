@@ -6,7 +6,8 @@ LIBS =  -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_h
 #INCPATH = -I/usr/local/Cellar/opencv/2.4.11_1/include
 #LIBPATH = -L/usr/local/Cellar/opencv/2.4.11_1/lib
 
-INCPATH = -I/usr/local/include -I/Users/willard/Public/github/image-retrieval/bag-of-words-stable-version/cppsugar
+INCPATH = -I/usr/local/include -I/media/psf/Home/Public/github/image-retrieval/bag-of-words-stable-version/cppsugar
+#INCPATH = -I/usr/local/include -I/Users/willard/Public/github/image-retrieval/bag-of-words-stable-version/cppsugar
 LIBPATH = -L/usr/local/lib
 
 all:    index search ukbenchScores

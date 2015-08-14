@@ -48,11 +48,13 @@ int main(int argc, char **argv) {
         auto files = ReadAllLinesFromFile(argv[2]);
         ofstream ofs("result.html");
         if (!ofs) throw runtime_error("Cannot open file.");
-        ofs << "<html><head><style> img {width:250px; border:0px; margin:5px 5px; padding:0px 0px;} .divcss5{text-align:center} </style></head><body><div class=\"divcss5\"><h2>Query</h2><div><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
+        ofs << "<html><head><style> img {width:250px; hight:250px; border:0px; margin:5px 5px; padding:0px 0px;} .divcss5{text-align:center} </style></head><body><div class=\"divcss5\"><h2>Query</h2><div><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
         //ofs << "<html><head><style> img { max-width: 320px; }</style></head><body><h2>Query</h2><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
         ofs << "<div class=\"divcss5\"><h2>Result</h2></div><table><tbody>";
-        for (auto p : dists) {
-            ofs << "<img alt=\"\" src=\"" << files[p.first] << "\" />";
+        for (int i = 0; i < 40; i++) {
+        //for (auto p : dists) {
+            ofs << "<img alt=\"\" src=\"" << files[dists[i].first] << "\" />";
+            //ofs << "<img alt=\"\" src=\"" << files[p.first] << "\" />";
             //ofs << "<tr><td><img alt=\"\" src=\"" << files[p.first] << "\" /></td><td><p>" << p.second << "</p></td></tr>";
 
         }
