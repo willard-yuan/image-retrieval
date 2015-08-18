@@ -107,6 +107,15 @@ public:
             return Mat();
         }
         extractor.compute(img, keypoints, descriptors);
+
+        // transform sift to rootSIFT, row is the number of features, cols is 128 dimension
+        for (int y = 0; y < descriptors.rows; y++) {
+            for (int x = 0; x < descriptors.cols; x++){
+                descriptors.at<float>(y, x) = sqrt(descriptors.at<float>(y, x));
+            }
+        }
+        
+        float threshold = pow(10, 12);
         // descriptors are not normalized, do L2 normalization here.
         for (int y = 0; y < descriptors.rows; y++) {
             // first get the square sum
@@ -115,9 +124,11 @@ public:
                 sum += descriptors.at<float>(y, x) * descriptors.at<float>(y, x);
             }
             sum = sqrt(sum);
+            sum = max(sum, threshold); // see vgg
             if (sum)
                 descriptors.row(y) /= sum;
         }
+
         cerr << descriptors.rows << " feature extracted." << endl;
         return descriptors;
     }

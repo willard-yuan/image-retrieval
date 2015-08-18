@@ -2,6 +2,7 @@
 *.dat
 *.html
 .DS_Store
+*.txt
 
 # Executables
 index
