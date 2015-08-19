@@ -13,12 +13,12 @@ imagesDir = args["imagesSet"]
 
 #imagesDir = "/Users/willard/Pictures/first1000"
 
-
 images_names = os.listdir(imagesDir)
+images_names = sorted(images_names)
 
 f = open("imageNamesList.txt", "w")
 for ind, str_each_file in enumerate(images_names):
     image_full_path = ''.join([imagesDir, str_each_file])
-    print 'wirte %s' % (image_full_path)
+    print 'write %s' % (image_full_path)
     f.writelines('%s\n' % image_full_path)
 f.close
