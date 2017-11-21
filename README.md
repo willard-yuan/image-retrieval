@@ -1,5 +1,7 @@
 ## 图像检索
 
+**这个项目会逐渐合并到**[cnn-cbir-benchmark](https://github.com/willard-yuan/cnn-cbir-benchmark)
+
 开始整理这两三年自己在image retrieval的一些资料，方便来年的毕业设计。
 
 #### 单词数目为100k统计的各项指标
