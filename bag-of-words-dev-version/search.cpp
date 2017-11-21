@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     }
     bool isHTML = (argc == 3);
     //bool isReRanking = (argc == 4);
-    bool isReRanking = 1;
+    bool isReRanking = 0;
 
     BoWBuilder bowbuilder;
     // read in files
@@ -61,6 +61,7 @@ int main(int argc, char **argv) {
     // extract features and quantize
     vector<int> word;
     vector<Point2f> queryCood (100);
+    auto last_time=clock();
     auto bow = bowbuilder.Quantize(dict, idf, argv[1], word, queryCood);
 
     // read the BoWs
@@ -78,7 +79,10 @@ int main(int argc, char **argv) {
 
     // sort and output
     sort(dists, [](const pair<int, float> &p1, const pair<int, float> &p2) { return p1.second > p2.second; });    // descending
-    for (auto p : dists) { cout << p.first << endl; }
+    for (int i=0 ;i<dists.size()/50;i++){
+	    cout << dists[i].first<<" sim: "<<dists[i].second << endl;
+    }
+    cout<<"compare time used: "<<(double)(clock()-last_time)/CLOCKS_PER_SEC<<" sec."<<endl;
 
     //int reRankingDepth = atoi(argv[4]);
     int reRankingDepth = 50;
@@ -144,9 +148,8 @@ int main(int argc, char **argv) {
         if (!ofs) throw runtime_error("Cannot open file.");
         ofs << "<html><head><style> img {width:250px; border:0px; margin:5px 5px; padding:0px 0px;} .divcss5{text-align:center} </style></head><body><div class=\"divcss5\"><h2>Query</h2><div><img src=\"" << argv[1] << "\" alt=\"\" /><br />";
         ofs << "<div class=\"divcss5\"><h2>Result</h2></div><table><tbody>";
-        for (auto p : dists) {
-            ofs << "<img alt=\"\" src=\"" << files[p.first] << "\" />";
-
+        for (int i=0 ;i<dists.size()/50;i++) {
+            ofs << "<img alt=\"\" src=\"" << files[dists[i].first] << "\" />";
         }
         ofs << "</tbody></table></body></html>";
         ofs.close();
